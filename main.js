@@ -1,15 +1,12 @@
-
+/*
 var B = 3975;
 var mraa = require("mraa");
 
 //GROVE Kit A0 Connector --> Aio(0)
 var myAnalogPin = new mraa.Aio(1);
 
-/*
-Function: startSensorWatch(socket)
-Parameters: socket - client communication channel
-Description: Read Temperature Sensor and send temperature in degrees of Fahrenheit every 4 seconds
-*/
+
+
 function startSensorWatch()
 {
     'use strict';
@@ -30,46 +27,58 @@ function startSensorWatch()
 
 console.log("Sample Reading Grove Kit Temperature Sensor");
 startSensorWatch();
-
-///////////////////////////////////Button and LED////////////////////////////////////////
+*/
+/////////////////////////////Button////////////////////////////////////
 
 var groveSensor = require('mraa');
-
-
 var button = new groveSensor.Gpio(3);
-
+var onepulse;
 var press=0;
-
-
-// Load Grove module
-var groveSensor2 = require('mraa');
-
-var groveSensor3 = require('mraa');
-
-var led = new groveSensor2.Gpio(4);
-var button = new groveSensor3.Gpio(3);
-led.dir(groveSensor2.DIR_OUT);
-
-
-// Read the input and print, waiting one second between readings
 function readButtonValue()
 {
     var b = button.read();
-    if(b==1)press=1;
-    else press=0;
+    if(b==1)
+    {
+        press=1;
+    }
+    else 
+    {
+        press=0;
+        onepulse=0;
+    }
 
-    
-    if(press==1)
-    {
-        led.write(1);
-    }
-    else
-    {
-            led.write(0);
-    }
 }
 
 setInterval(readButtonValue, 10);
+
+
+///////////////////////////////////Touch Sensor and LED////////////////////////////////////////
+
+
+
+
+var groveSensor2 = require('mraa');
+
+
+var led = new groveSensor2.Gpio(4);
+
+led.dir(groveSensor2.DIR_OUT);
+
+var groveSensor5 = require('mraa');
+var touch = new groveSensor5.Gpio(6);
+var touchout;
+setInterval(function()
+{
+    touchout = touch.read();
+
+
+    if(touchout==1)led.write(1);
+    else led.write(0);
+
+},100);
+
+
+
 
 ///////////////////////////////LIGHT SENSOR////////////////////////
 
@@ -78,9 +87,10 @@ var groveSensor4 = require('mraa');
 var lightsensor = new groveSensor4.Aio(2);
 var lightly;
 
-setInterval(function(){
-     lightly = lightsensor.read();    
-                      },100);
+setInterval(function()
+{
+    lightly = lightsensor.read();
+},100);
 
 
 
@@ -92,64 +102,94 @@ var mraa = require('mraa');
 var version = mraa.getVersion();
 
 
-if (version >= 'v0.6.1') {
+if (version >= 'v0.6.1')
+{
     console.log('mraa version (' + version + ') ok');
 }
-else {
+else
+{
     console.log('meaa version(' + version + ') is old - this code may not work');
 }
 
 
-    useLcd();
+useLcd();
+var used=0;
+var first=0;
 
 
-
-function rotateColors(display) {
+function rotateColors(display)
+{
     var red = 0;
     var green = 0;
     var blue = 0;
+    
     display.setColor(red, green, blue);
-    setInterval(function() {
-     /*   blue += 64;
-        if (blue > 255) {
-            blue = 0;
-            green += 64;
-            if (green > 255) {
-                green = 0;
-                red += 64;
-                if (red > 255) {
-                    red = 0;
-                }
-            }
-        }
-         */  
+    setInterval(function()
+    {
+       
+        
+        var curdate = new Date();
+        var showdate = (curdate.getMonth()+1) + "/"
+                       +  curdate.getDate()     + " @ "
+                       + curdate.getHours()    + ":"
+                       + curdate.getMinutes()    + ":"
+                       + curdate.getSeconds();
         display.setColor(red, green, blue);
-        display.setCursor(1,1);
-        display.write("             ");
-        display.setCursor(0,0);
-        display.write("             ");
-        display.setCursor(0,0);
-        display.write(lightly.toString());
-    }, 100);
+        if(first==0)
+            {
+                 display.setCursor(1,0);
+                    display.write("                ");
+                    display.setCursor(0,0);
+                    display.write("                ");
+                first=1;
+            }
+        
+        if(press==1&&onepulse==0)
+        {
+            onepulse=1;
+            
+            if(used==0)
+            {
+                 display.setCursor(0,0);
+                    display.write("                ");
+                display.setCursor(0,0);
+                display.write(showdate);
+                used=1;
+            }
+            else
+            {
+                display.setCursor(1,0);
+                    display.write("                ");
+                display.setCursor(1,0);
+                display.write(showdate);
+                used=0;
+            }
+
+        }
+
+    }, 10);
 }
 
 
 
-function useLcd() {
+function useLcd()
+{
     var lcd = require('./lcd');
     var display = new lcd.LCD(0);
-    
 
-   // display.setColor(0, 60, 255);
+
+    // display.setColor(0, 60, 255);
     display.setCursor(1, 1);
     display.write('hi there');
-    display.setCursor(0,0);  
+    display.setCursor(0,0);
     display.write('more text');
-   display.waitForQuiescent()
-    .then(setInterval(function() {
+    display.waitForQuiescent()
+    .then(setInterval(function()
+    {
         rotateColors(display);
     },1000))
-    .fail(function(err) {
+    .fail(function(err)
+    {
         console.log(err);
         display.clearError();
         rotateColors(display);
