@@ -19,22 +19,23 @@ function startSensorWatch()
         console.log("Analog Pin (A1) Output: " + a);
         //console.log("Checking....");
 
-        var resistance = (1023 - a) * 10000 / a; //get the resistance of the sensor;
+        var resistance = (700 - a) * 10000 / a; //get the resistance of the sensor;
         //console.log("Resistance: "+resistance);
         var celsius_temperature = 1 / (Math.log(resistance / 10000) / B + 1 / 298.15) - 273.15;//convert to temperature via datasheet ;
-        //console.log("Celsius Temperature "+celsius_temperature);
+        console.log("Celsius Temperature "+celsius_temperature);
         var fahrenheit_temperature = (celsius_temperature * (9 / 5)) + 32;
-        console.log("Fahrenheit Temperature: " + fahrenheit_temperature);
-    }, 4000);
+        //console.log("Fahrenheit Temperature: " + fahrenheit_temperature);
+    }, 1000);
 }
 
 console.log("Sample Reading Grove Kit Temperature Sensor");
 startSensorWatch();
 
-// Load Grove module
+///////////////////////////////////Button and LED////////////////////////////////////////
+
 var groveSensor = require('mraa');
 
-// Create the button object using GPIO pin 0
+
 var button = new groveSensor.Gpio(3);
 
 var press=0;
@@ -43,11 +44,12 @@ var press=0;
 // Load Grove module
 var groveSensor2 = require('mraa');
 
-// Create the Grove LED object using GPIO pin 2
+var groveSensor3 = require('mraa');
 
-
-var led = new groveSensor2.Gpio(7);
+var led = new groveSensor2.Gpio(4);
+var button = new groveSensor3.Gpio(3);
 led.dir(groveSensor2.DIR_OUT);
+
 
 // Read the input and print, waiting one second between readings
 function readButtonValue()
@@ -56,27 +58,39 @@ function readButtonValue()
     if(b==1)press=1;
     else press=0;
 
-
+    
     if(press==1)
     {
         led.write(1);
     }
     else
     {
-        led.write(0);
+            led.write(0);
     }
 }
 
-setInterval(readButtonValue, 1);
+setInterval(readButtonValue, 10);
+
+///////////////////////////////LIGHT SENSOR////////////////////////
+
+var groveSensor4 = require('mraa');
+
+var lightsensor = new groveSensor4.Aio(2);
+var lightly;
+
+setInterval(function(){
+     lightly = lightsensor.read();    
+                      },100);
+
+
 
 //////////////////////////////////////LCD///////////////////////////
 
 
-var useUpmVersion = true;
-
 // we want mraa to be at least version 0.6.1
 var mraa = require('mraa');
 var version = mraa.getVersion();
+
 
 if (version >= 'v0.6.1') {
     console.log('mraa version (' + version + ') ok');
@@ -89,10 +103,7 @@ else {
     useLcd();
 
 
-/**
- * Rotate through a color pallette and display the
- * color of the background as text
- */
+
 function rotateColors(display) {
     var red = 0;
     var green = 0;
@@ -110,34 +121,34 @@ function rotateColors(display) {
                     red = 0;
                 }
             }
-        }*/
-     //   display.setColor(red, green, blue);
+        }
+         */  
+        display.setColor(red, green, blue);
+        display.setCursor(1,1);
+        display.write("             ");
         display.setCursor(0,0);
-        display.write('red=' + red + ' grn=' + green + '  ');
-        display.setCursor(1,0);
-        display.write('blue=' + blue + '   ');  // extra padding clears out previous text
-    }, 1000);
+        display.write("             ");
+        display.setCursor(0,0);
+        display.write(lightly.toString());
+    }, 100);
 }
 
 
-/**
- * Use the hand rolled lcd.js code to do the
- * same thing as the previous code without the
- * upm library
- */
+
 function useLcd() {
     var lcd = require('./lcd');
-    var display = new lcd.LCD(6);
+    var display = new lcd.LCD(0);
+    
 
-    display.setColor(0, 60, 255);
+   // display.setColor(0, 60, 255);
     display.setCursor(1, 1);
     display.write('hi there');
     display.setCursor(0,0);  
     display.write('more text');
-    display.waitForQuiescent()
-    .then(function() {
+   display.waitForQuiescent()
+    .then(setInterval(function() {
         rotateColors(display);
-    })
+    },1000))
     .fail(function(err) {
         console.log(err);
         display.clearError();
@@ -145,3 +156,6 @@ function useLcd() {
     });
 }
 
+
+
+//////////////////////////
