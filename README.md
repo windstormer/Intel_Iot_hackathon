@@ -1,7 +1,7 @@
 Feature of the project
 ===============================
--Touch Sensor trigger RED LED
--When press down the button we will show current time on LCD
+1. Touch Sensor trigger RED LED
+2. When press down the button we will show current time on LCD
 
 
 Local Temperature Node.js IoT App
