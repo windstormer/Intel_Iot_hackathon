@@ -3,6 +3,14 @@ Feature of the project
 1. Touch Sensor trigger RED LED
 2. When press down the button we will show current time on LCD
 
+Port attech with outside sensor
+================================
+1. BUTTON with Gpio(3)
+2. TOUCH SENSOR with Gpio(6)
+3. LED with Gpio(4)
+4. LIGHT SENSOR with Aio(2)
+5. LCD with Gpio(I2C)
+
 
 Local Temperature Node.js IoT App
 ============================
